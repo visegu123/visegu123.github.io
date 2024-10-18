@@ -2,47 +2,49 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Latihan Kedua</title>
-    <style>
-        body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            font-family: 'Arial', sans-serif;
-            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
-            overflow: hidden;
-            animation: gradientBackground 10s infinite alternate;
-        }
-
-        @keyframes gradientBackground {
-            0% { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); }
-            50% { background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); }
-            100% { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); }
-        }
-
-        h1 {
-            font-size: 3em;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-            animation: moveText 5s infinite, colorChange 10s infinite alternate;
-        }
-
-        @keyframes moveText {
-            0% { transform: translateY(0); }
-            50% { transform: translateY(-50px); }
-            100% { transform: translateY(0); }
-        }
-
-        @keyframes colorChange {
-            0% { color: #fff; }
-            50% { color: #000; }
-            100% { color: #fff; }
-        }
-    </style>
+    <title>My Portfolio</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Ini Latihan Kedua</h1>
+    <!-- Header -->
+    <header>
+        <h1>John Doe</h1>
+        <p>Web Developer & Designer</p>
+    </header>
+
+    <!-- Tentang Saya -->
+    <section id="about">
+        <h2>Tentang Saya</h2>
+        <p>Saya adalah seorang web developer dengan pengalaman dalam membangun website menggunakan HTML, CSS, dan JavaScript. Saya bersemangat dalam mengembangkan aplikasi yang inovatif dan mudah digunakan.</p>
+    </section>
+
+    <!-- Proyek -->
+    <section id="projects">
+        <h2>Proyek</h2>
+        <ul>
+            <li>
+                <h3>Proyek 1: Website Portofolio</h3>
+                <p>Website portofolio ini dibangun menggunakan HTML dan CSS untuk menampilkan informasi dan karya saya.</p>
+            </li>
+            <li>
+                <h3>Proyek 2: Toko Online</h3>
+                <p>Toko online sederhana dengan fitur keranjang belanja dan checkout, dibangun menggunakan JavaScript dan Bootstrap.</p>
+            </li>
+        </ul>
+    </section>
+
+    <!-- Kontak -->
+    <section id="contact">
+        <h2>Kontak</h2>
+        <p>Email: johndoe@example.com</p>
+        <p>LinkedIn: <a href="https://www.linkedin.com/in/johndoe">John Doe</a></p>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2024 John Doe. All rights reserved.</p>
+    </footer>
 </body>
 </html>
