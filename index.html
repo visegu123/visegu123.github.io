@@ -1,1 +1,48 @@
-<p>halo semuanya</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Latihan Kedua</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+            overflow: hidden;
+            animation: gradientBackground 10s infinite alternate;
+        }
+
+        @keyframes gradientBackground {
+            0% { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); }
+            50% { background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%); }
+            100% { background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); }
+        }
+
+        h1 {
+            font-size: 3em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            animation: moveText 5s infinite, colorChange 10s infinite alternate;
+        }
+
+        @keyframes moveText {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-50px); }
+            100% { transform: translateY(0); }
+        }
+
+        @keyframes colorChange {
+            0% { color: #fff; }
+            50% { color: #000; }
+            100% { color: #fff; }
+        }
+    </style>
+</head>
+<body>
+    <h1>Ini Latihan Kedua</h1>
+</body>
+</html>
