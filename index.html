@@ -212,6 +212,24 @@
                 const dateObj = new Date(task.Deadline);
                 const formattedDate = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 
+                // --- BAGIAN BARU: Membuat Link Google Calendar ---
+                // Format Waktu ke standar Kalender (YYYYMMDDTHHMMSSZ)
+                const calStart = dateObj.toISOString().replace(/-|:|\.\d\d\d/g, "");
+                // Kita buat durasi kalendernya 1 jam (tenggat waktu)
+                const dateEnd = new Date(dateObj.getTime() + (60 * 60 * 1000)); 
+                const calEnd = dateEnd.toISOString().replace(/-|:|\.\d\d\d/g, "");
+                
+                // Link sakti Google Calendar
+                const gCalLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(task.Mata_Kuliah + " - " + task.Jenis_Kegiatan)}&dates=${calStart}/${calEnd}&details=${encodeURIComponent(task.Deskripsi)}`;
+                
+                // Tombol Notif hanya muncul kalau tugas belum selesai
+                const tombolNotif = !isSelesai ? `
+                    <a href="${gCalLink}" target="_blank" style="display:inline-block; margin-top:10px; background:#f59e0b; color:white; padding:5px 10px; border-radius:5px; text-decoration:none; font-size:12px; font-weight:bold;">
+                        <i class="fas fa-bell"></i> Set Pengingat
+                    </a>
+                ` : '';
+                // ------------------------------------------------
+
                 contentDiv.innerHTML += `
                     <div class="card ${isSelesai}">
                         <div class="card-header">
@@ -222,7 +240,7 @@
                         <div class="deadline ${isSelesai}">
                             ${iconTugas} ${currentTab === 'Aktif' ? 'Deadline:' : 'Selesai:'} ${formattedDate}
                         </div>
-                    </div>
+                        ${tombolNotif} </div>
                 `;
             });
         }
