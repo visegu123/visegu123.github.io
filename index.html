@@ -4,288 +4,193 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Jadwal Angkatan</title>
-    
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#4f46e5">
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
-        /* CSS Utama */
         :root {
-            --primary: #4f46e5;
-            --bg-color: #f3f4f6;
-            --card-bg: #ffffff;
-            --text-main: #1f2937;
-            --text-muted: #6b7280;
-            --success: #10b981;
-            --warning: #f59e0b;
+            --primary: #4f46e5; --bg-color: #f3f4f6; --card-bg: #ffffff;
+            --text-main: #1f2937; --text-muted: #6b7280; --success: #10b981; --warning: #f59e0b; --danger: #ef4444;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-main); padding-bottom: 80px; }
 
-        /* Header dengan Flexbox (Kiri Judul, Kanan Admin) */
-        header {
-            background-color: var(--primary);
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+        header { background-color: var(--primary); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
         .header-title { font-size: 20px; font-weight: bold; }
         .admin-btn { color: white; text-decoration: none; font-size: 18px; }
 
-        /* Banner Offline */
-        #offline-banner {
-            display: none;
-            background-color: var(--warning);
-            color: white;
-            text-align: center;
-            padding: 8px;
-            font-size: 12px;
-            font-weight: bold;
-        }
+        /* Fitur Pencarian */
+        .search-container { padding: 10px 15px; background: white; border-bottom: 1px solid #e5e7eb; }
+        .search-input { width: 100%; padding: 10px 15px; border-radius: 20px; border: 1px solid #d1d5db; outline: none; font-size: 14px; }
+        .search-input:focus { border-color: var(--primary); }
 
-        /* Tombol Install PWA */
-        #install-container {
-            display: none; /* Disembunyikan sampai HP mengizinkan install */
-            padding: 15px;
-            text-align: center;
-        }
-        .btn-install {
-            background-color: var(--text-main);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        /* Tabs Navigasi */
         .tabs { display: flex; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        .tab-btn {
-            flex: 1; padding: 15px 0; background: none; border: none; font-size: 15px;
-            font-weight: 600; color: var(--text-muted); border-bottom: 3px solid transparent; cursor: pointer;
-        }
+        .tab-btn { flex: 1; padding: 12px 0; background: none; border: none; font-size: 14px; font-weight: 600; color: var(--text-muted); border-bottom: 3px solid transparent; cursor: pointer; }
         .tab-btn.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
-        .tab-btn i { margin-right: 5px; }
 
-        /* Container & Card */
         .container { padding: 15px; max-width: 600px; margin: 0 auto; }
-        .card { background: var(--card-bg); border-radius: 12px; padding: 16px; margin-bottom: 15px; border-left: 5px solid var(--primary); }
-        .card.selesai { border-left-color: var(--success); opacity: 0.8; }
-        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .matkul { font-size: 18px; font-weight: bold; }
-        .badge { background: #e0e7ff; color: var(--primary); padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+        .card { background: var(--card-bg); border-radius: 12px; padding: 16px; margin-bottom: 15px; border-left: 5px solid var(--primary); box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .card.selesai { border-left-color: var(--success); opacity: 0.7; }
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+        .matkul { font-size: 17px; font-weight: bold; }
+        .badge { background: #e0e7ff; color: var(--primary); padding: 4px 8px; border-radius: 12px; font-size: 11px; font-weight: bold; white-space: nowrap; margin-left: 10px; }
         .badge.selesai { background: #d1fae5; color: var(--success); }
-        .deskripsi { font-size: 14px; color: var(--text-muted); margin-bottom: 15px; }
-        .deadline { font-size: 13px; font-weight: 600; color: #ef4444; }
-        .deadline.selesai { color: var(--success); }
+        .deskripsi { font-size: 14px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.4; }
+        
+        .meta-info { display: flex; justify-content: space-between; align-items: center; font-size: 12px; font-weight: bold; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dashed #e5e7eb; }
+        
+        /* Tombol Aksi Bawah */
+        .action-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+        .btn-action { flex: 1; text-align: center; padding: 8px 10px; border-radius: 8px; font-size: 12px; font-weight: bold; text-decoration: none; color: white; display: flex; justify-content: center; align-items: center; gap: 5px; }
+        .btn-cal { background-color: var(--warning); }
+        .btn-link { background-color: var(--primary); }
+        .btn-wa { background-color: #25D366; }
 
-        .loading, .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
+        .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
     </style>
 </head>
 <body>
 
     <header>
         <div class="header-title"><i class="fas fa-graduation-cap"></i> JadwalKu</div>
-        <a href="admin.html" class="admin-btn" title="Login Komting"><i class="fas fa-user-shield"></i></a>
+        <a href="admin.html" class="admin-btn"><i class="fas fa-user-shield"></i></a>
     </header>
 
-    <div id="offline-banner">
-        <i class="fas fa-wifi-slash"></i> Anda sedang offline. Menampilkan data tersimpan.
-    </div>
-
-    <div id="install-container">
-        <button id="btn-install" class="btn-install">
-            <i class="fas fa-download"></i> Install Aplikasi ke HP
-        </button>
+    <div class="search-container">
+        <input type="text" id="search-input" class="search-input" placeholder="🔍 Cari mata kuliah atau jenis tugas..." onkeyup="renderTasks()">
     </div>
 
     <div class="tabs">
-        <button class="tab-btn active" id="btn-aktif" onclick="switchTab('Aktif')">
-            <i class="fas fa-tasks"></i> Tugas Aktif
-        </button>
-        <button class="tab-btn" id="btn-selesai" onclick="switchTab('Selesai')">
-            <i class="fas fa-check-circle"></i> Selesai
-        </button>
+        <button class="tab-btn active" id="btn-aktif" onclick="switchTab('Aktif')"><i class="fas fa-tasks"></i> Tugas Aktif</button>
+        <button class="tab-btn" id="btn-selesai" onclick="switchTab('Selesai')"><i class="fas fa-check-circle"></i> Selesai</button>
     </div>
 
     <div class="container">
         <div id="content">
-            <div class="loading"><i class="fas fa-spinner fa-spin fa-2x"></i><br><br>Memuat jadwal...</div>
+            <div class="empty-state"><i class="fas fa-spinner fa-spin fa-2x"></i><br><br>Memuat data...</div>
         </div>
     </div>
 
     <script>
-        // ⚠️ PENTING: Ganti URL ini dengan URL Web App milikmu!
-        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwwmXyM5sJZkcNW7Gjo9PRvzpWJKaUuwTEIDKbqN_XTQ9X5ecpNw--51NJd46zGFKr4/exec?action=getTasks';
+        // ⚠️ JANGAN LUPA GANTI URL INI!
+        const SCRIPT_URL = 'URL_WEB_APP_KAMU_DISINI?action=getTasks';
         
         let allTasks = [];
         let currentTab = 'Aktif';
 
-        // ==========================================
-        // LOGIKA OFFLINE & FETCH DATA
-        // ==========================================
-        window.onload = async function() {
-            cekKoneksi();
-            await fetchTasks();
-        };
-
-        // Deteksi internet mati/nyala secara real-time
-        window.addEventListener('offline', cekKoneksi);
-        window.addEventListener('online', () => { cekKoneksi(); fetchTasks(); });
-
-        function cekKoneksi() {
-            const banner = document.getElementById('offline-banner');
-            if (!navigator.onLine) {
-                banner.style.display = 'block';
-            } else {
-                banner.style.display = 'none';
-            }
-        }
+        window.onload = async function() { await fetchTasks(); };
 
         async function fetchTasks() {
-            // 1. Load dari memori HP dulu (Biar cepat & Offline Ready)
             const savedData = localStorage.getItem('jadwal_angkatan_data');
             if (savedData) {
                 allTasks = JSON.parse(savedData);
                 renderTasks();
             }
-
-            // 2. Jika ada internet, ambil data terbaru diam-diam
             if (navigator.onLine) {
                 try {
-                    const response = await fetch(SCRIPT_URL, { redirect: "follow" });
+                    const response = await fetch(SCRIPT_URL);
                     const json = await response.json();
                     if (json.status === "success") {
                         allTasks = json.data;
-                        localStorage.setItem('jadwal_angkatan_data', JSON.stringify(allTasks)); // Simpan terbaru
-                        renderTasks(); // Update layar
+                        localStorage.setItem('jadwal_angkatan_data', JSON.stringify(allTasks));
+                        renderTasks();
                     }
-                } catch (error) {
-                    console.log("Gagal fetch data baru, menggunakan cache lokal.");
-                    document.getElementById('offline-banner').style.display = 'block';
-                }
-            } else if (!savedData) {
-                document.getElementById('content').innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle fa-2x"></i><br><br>Kamu offline dan belum ada data tersimpan.</div>`;
+                } catch (error) { console.log("Offline mode."); }
             }
         }
 
-        // ==========================================
-        // LOGIKA RENDER TAMPILAN
-        // ==========================================
         function switchTab(tabName) {
             currentTab = tabName;
             document.getElementById('btn-aktif').classList.remove('active');
             document.getElementById('btn-selesai').classList.remove('active');
-            
             if (tabName === 'Aktif') document.getElementById('btn-aktif').classList.add('active');
             else document.getElementById('btn-selesai').classList.add('active');
-
             renderTasks();
         }
 
         function renderTasks() {
             const contentDiv = document.getElementById('content');
+            const searchText = document.getElementById('search-input').value.toLowerCase();
             contentDiv.innerHTML = ''; 
-            const filteredTasks = allTasks.filter(task => task.Status === currentTab);
+
+            // Filter Berdasarkan Tab & Input Pencarian
+            const filteredTasks = allTasks.filter(task => {
+                const isMatchTab = task.Status === currentTab;
+                const isMatchSearch = task.Mata_Kuliah.toLowerCase().includes(searchText) || task.Jenis_Kegiatan.toLowerCase().includes(searchText);
+                return isMatchTab && isMatchSearch;
+            });
+
             filteredTasks.sort((a, b) => new Date(a.Deadline) - new Date(b.Deadline));
 
             if (filteredTasks.length === 0) {
-                contentDiv.innerHTML = `<div class="empty-state"><i class="fas fa-glass-cheers fa-3x" style="color:#d1d5db; margin-bottom:10px;"></i><br>Tidak ada tugas ${currentTab.toLowerCase()} saat ini.</div>`;
+                contentDiv.innerHTML = `<div class="empty-state">Tidak ada tugas yang sesuai.</div>`;
                 return;
             }
 
+            const now = new Date();
+
             filteredTasks.forEach(task => {
-                const isSelesai = task.Status === 'Selesai' ? 'selesai' : '';
-                const iconTugas = isSelesai ? '<i class="fas fa-check-double"></i>' : '<i class="fas fa-clock"></i>';
-                
+                const isSelesai = task.Status === 'Selesai';
                 const dateObj = new Date(task.Deadline);
                 const formattedDate = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 
-                // --- BAGIAN BARU: Membuat File .ICS (Universal Calendar) ---
-                // Format Waktu ke standar UTC Kalender (YYYYMMDDTHHMMSSZ)
+                // Fitur: Hitung Mundur (Countdown)
+                let countdownHTML = `<span style="color: var(--success);"><i class="fas fa-check"></i> Selesai: ${formattedDate}</span>`;
+                if (!isSelesai) {
+                    const timeDiff = dateObj - now;
+                    if (timeDiff > 0) {
+                        const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+                        const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        let color = "var(--success)";
+                        if (days === 0) color = "var(--danger)"; // Merah kalau < 24 jam
+                        else if (days <= 2) color = "var(--warning)"; // Kuning kalau < 3 hari
+                        countdownHTML = `<span style="color: ${color};"><i class="fas fa-hourglass-half"></i> Sisa: ${days}h ${hours}j</span>`;
+                    } else {
+                        countdownHTML = `<span style="color: var(--danger);"><i class="fas fa-exclamation-triangle"></i> Terlambat / Lewat Deadline</span>`;
+                    }
+                }
+
+                // Fitur: Tombol Kalender (.ics)
                 const calStart = dateObj.toISOString().replace(/-|:|\.\d\d\d/g, "");
-                const dateEnd = new Date(dateObj.getTime() + (60 * 60 * 1000)); // Durasi 1 jam
+                const dateEnd = new Date(dateObj.getTime() + (60 * 60 * 1000));
                 const calEnd = dateEnd.toISOString().replace(/-|:|\.\d\d\d/g, "");
-                
-                // Menyusun teks format standar iCalendar
-                const icsContent = `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:${task.Mata_Kuliah} - ${task.Jenis_Kegiatan}\nDESCRIPTION:${task.Deskripsi}\nDTSTART:${calStart}\nDTEND:${calEnd}\nEND:VEVENT\nEND:VCALENDAR`;
-                
-                // Mengubah teks di atas menjadi format file yang bisa diklik
+                const icsContent = `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:${task.Mata_Kuliah}\nDESCRIPTION:${task.Deskripsi}\nDTSTART:${calStart}\nDTEND:${calEnd}\nEND:VEVENT\nEND:VCALENDAR`;
                 const icsLink = `data:text/calendar;charset=utf-8,${encodeURIComponent(icsContent)}`;
                 
-                // Tombol Notif menggunakan atribut download="tugas.ics"
-                const tombolNotif = !isSelesai ? `
-                    <a href="${icsLink}" download="${task.Mata_Kuliah.replace(/\s/g, '_')}_Deadline.ics" style="display:inline-block; margin-top:10px; background:#f59e0b; color:white; padding:6px 12px; border-radius:6px; text-decoration:none; font-size:13px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
-                        <i class="fas fa-calendar-plus"></i> Masukkan ke Kalender HP
-                    </a>
-                ` : '';
-                // ------------------------------------------------
+                // Fitur: Tombol Share WA (Viralitas)
+                const waText = `🚨 *TUGAS: ${task.Mata_Kuliah}*\n📝 Jenis: ${task.Jenis_Kegiatan}\n⏰ Deadline: ${formattedDate}\n\n*Info:* ${task.Deskripsi}\n\nBuka JadwalKu untuk info angkatan lengkap!`;
+                const waLink = `https://api.whatsapp.com/send?text=${encodeURIComponent(waText)}`;
 
+                // Fitur: Tombol Link Referensi (Hanya muncul jika diisi oleh Komting)
+                // Cek apakah kolom Link_Referensi ada dan tidak kosong
+                const btnLinkRef = (task.Link_Referensi && task.Link_Referensi.trim() !== "") 
+                    ? `<a href="${task.Link_Referensi}" target="_blank" class="btn-action btn-link"><i class="fas fa-external-link-alt"></i> Buka Link</a>` 
+                    : '';
+
+                // Susun HTML Kartu
                 contentDiv.innerHTML += `
-                    <div class="card ${isSelesai}">
+                    <div class="card ${isSelesai ? 'selesai' : ''}">
                         <div class="card-header">
                             <div class="matkul">${task.Mata_Kuliah}</div>
-                            <div class="badge ${isSelesai}">${task.Jenis_Kegiatan}</div>
+                            <div class="badge ${isSelesai ? 'selesai' : ''}">${task.Jenis_Kegiatan}</div>
                         </div>
                         <div class="deskripsi">${task.Deskripsi}</div>
-                        <div class="deadline ${isSelesai}">
-                            ${iconTugas} ${currentTab === 'Aktif' ? 'Deadline:' : 'Selesai:'} ${formattedDate}
+                        
+                        <div class="meta-info">
+                            <div><i class="fas fa-clock"></i> ${formattedDate}</div>
+                            <div>${countdownHTML}</div>
                         </div>
-                        ${tombolNotif}
+
+                        ${!isSelesai ? `
+                        <div class="action-buttons">
+                            <a href="${icsLink}" download="Tugas_${task.Mata_Kuliah}.ics" class="btn-action btn-cal"><i class="fas fa-calendar-plus"></i> Kalender</a>
+                            ${btnLinkRef}
+                            <a href="${waLink}" target="_blank" class="btn-action btn-wa"><i class="fab fa-whatsapp"></i> Share</a>
+                        </div>
+                        ` : ''}
                     </div>
                 `;
-            });
-        }
-
-        // ==========================================
-        // LOGIKA INSTALASI PWA (Add to Home Screen)
-        // ==========================================
-        let deferredPrompt;
-        const installContainer = document.getElementById('install-container');
-        const installBtn = document.getElementById('btn-install');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            // Mencegah pop-up default bawaan Chrome
-            e.preventDefault();
-            // Simpan event untuk dipicu nanti
-            deferredPrompt = e;
-            // Tampilkan tombol Install milik kita
-            installContainer.style.display = 'block';
-        });
-
-        installBtn.addEventListener('click', async () => {
-            if (deferredPrompt !== null) {
-                // Munculkan prompt instalasi bawaan HP
-                deferredPrompt.prompt();
-                // Tunggu respon user (apakah klik Install atau Cancel)
-                const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    console.log('User menerima instalasi PWA');
-                    installContainer.style.display = 'none'; // Sembunyikan tombol setelah diinstall
-                }
-                deferredPrompt = null;
-            }
-        });
-
-        // ==========================================
-        // DAFTARKAN SERVICE WORKER (Biar bisa Offline)
-        // ==========================================
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js')
-                    .then(reg => console.log('SW Registered!', reg))
-                    .catch(err => console.log('SW Error:', err));
             });
         }
     </script>
