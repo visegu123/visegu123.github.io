@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Admin - Jadwal Angkatan</title>
+    <style>
+        /* ==========================================
+           CSS: STYLING FORM & DASHBOARD ADMIN
+           ========================================== */
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); padding-bottom: 40px; }
+        
+        header { background-color: var(--text-main); color: white; padding: 20px; text-align: center; font-size: 20px; font-weight: bold; }
+        
+        .container { padding: 20px; max-width: 600px; margin: 0 auto; }
+        
+        .card { background: var(--card-bg); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        
+        /* Form Styling */
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 5px; color: var(--text-main); }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: var(--primary); }
+        
+        /* Button Styling */
+        button { width: 100%; padding: 12px; background-color: var(--primary); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { background-color: var(--primary-dark); }
+        button:disabled { background-color: #9ca3af; cursor: not-allowed; }
+        
+        .btn-success { background-color: var(--success); margin-top: 10px; font-size: 14px; padding: 8px; }
+        .btn-success:hover { background-color: #059669; }
+
+        /* Task Card Admin */
+        .task-card { border-left: 4px solid var(--primary); padding: 15px; background: #f9fafb; border-radius: 8px; margin-bottom: 10px; }
+        .task-title { font-weight: bold; font-size: 16px; margin-bottom: 5px; }
+        .task-meta { font-size: 12px; color: #6b7280; margin-bottom: 10px; }
+
+        /* Loading Overlay */
+        #loading-overlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.8); z-index: 999; justify-content: center; align-items: center; flex-direction: column; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--primary); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+    </style>
+</head>
+<body>
+
+    <header>⚙️ Panel Komting</header>
+
+    <div id="loading-overlay">
+        <div class="spinner"></div>
+        <p style="margin-top: 15px; font-weight: bold;">Memproses data...</p>
+    </div>
+
+    <div class="container">
+        
+        <div id="login-section" class="card">
+            <h2 style="text-align: center; margin-bottom: 20px;">Login Admin</h2>
+            <form id="form-login" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Username</label>
+                    <input type="text" id="username" required placeholder="Masukkan username">
+                </div>
+                <div class="form-group">
+                    <label>PIN Rahasia</label>
+                    <input type="password" id="pin" required placeholder="Masukkan PIN 6 digit">
+                </div>
+                <button type="submit" id="btn-login">Masuk</button>
+            </form>
+        </div>
+
+        <div id="admin-section" style="display: none;">
+            
+            <div class="card">
+                <h3 style="margin-bottom: 15px;">➕ Tambah Tugas Baru</h3>
+                <form id="form-tugas" onsubmit="handleTambahTugas(event)">
+                    <div class="form-group">
+                        <label>Mata Kuliah</label>
+                        <input type="text" id="mata_kuliah" required placeholder="Contoh: Algoritma Pemrograman">
+                    </div>
+                    <div class="form-group">
+                        <label>Jenis Kegiatan</label>
+                        <select id="jenis_kegiatan" required>
+                            <option value="Tugas Individu">Tugas Individu</option>
+                            <option value="Tugas Kelompok">Tugas Kelompok</option>
+                            <option value="Kuis">Kuis / Ujian</option>
+                            <option value="Info Penting">Info Penting / Pengganti Kelas</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Deskripsi & Instruksi</label>
+                        <textarea id="deskripsi" rows="3" required placeholder="Tulis instruksi detail..."></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Deadline (Tenggat Waktu)</label>
+                        <input type="datetime-local" id="deadline" required> 
+                    </div>
+                    <button type="submit">Simpan Tugas</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h3 style="margin-bottom: 15px;">📋 Daftar Tugas Aktif</h3>
+                <div id="list-tugas-aktif">
+                    <p style="text-align: center; color: gray; font-size: 14px;">Memuat data...</p>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        /* ==========================================
+           JAVASCRIPT: LOGIKA LOGIN & INPUT DATA
+           ========================================== */
+           
+        // ⚠️ PENTING: Ganti dengan URL Aplikasi Web (Web App) Google Apps Script milikmu!
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwwmXyM5sJZkcNW7Gjo9PRvzpWJKaUuwTEIDKbqN_XTQ9X5ecpNw--51NJd46zGFKr4/exec'; 
+
+        // Fungsi Menampilkan/Menyembunyikan Loading
+        function showLoading(show) {
+            document.getElementById('loading-overlay').style.display = show ? 'flex' : 'none';
+        }
+
+        // 1. Proses Login
+        async function handleLogin(event) {
+            event.preventDefault(); // Mencegah halaman reload
+            showLoading(true);
+            
+            const username = document.getElementById('username').value;
+            const pin = document.getElementById('pin').value;
+
+            try {
+                // Mengirim metode POST dengan body JSON ke Google Apps Script
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'login', username: username, pin: pin })
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    alert('Login Berhasil, halo Komting!');
+                    document.getElementById('login-section').style.display = 'none';
+                    document.getElementById('admin-section').style.display = 'block';
+                    loadTugasAktif(); // Tarik data tugas aktif setelah login
+                } else {
+                    alert('Gagal: ' + result.message);
+                }
+            } catch (error) {
+                alert('Terjadi kesalahan koneksi.');
+            }
+            showLoading(false);
+        }
+
+        // 2. Proses Tambah Tugas Baru
+        async function handleTambahTugas(event) {
+            event.preventDefault();
+            showLoading(true);
+            
+            // Ambil data dari Form
+            const taskData = {
+                mata_kuliah: document.getElementById('mata_kuliah').value,
+                jenis_kegiatan: document.getElementById('jenis_kegiatan').value,
+                deskripsi: document.getElementById('deskripsi').value,
+                // Format datetime-local ke bentuk yang lebih rapi: YYYY-MM-DD HH:MM
+                deadline: document.getElementById('deadline').value.replace('T', ' ')
+            };
+
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'addTask', data: taskData })
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    alert('Tugas berhasil ditambahkan!');
+                    document.getElementById('form-tugas').reset(); // Kosongkan form
+                    loadTugasAktif(); // Refresh daftar di bawah
+                } else {
+                    alert('Gagal menyimpan: ' + result.message);
+                }
+            } catch (error) {
+                alert('Terjadi kesalahan koneksi saat menyimpan.');
+            }
+            showLoading(false);
+        }
+
+        // 3. Menarik Data Tugas Aktif untuk di-manage
+        async function loadTugasAktif() {
+            const listDiv = document.getElementById('list-tugas-aktif');
+            listDiv.innerHTML = '<p style="text-align:center; color:gray;">Memuat tugas...</p>';
+
+            try {
+                // URL menggunakan parameter ?action=getTasks untuk metode GET
+                const response = await fetch(SCRIPT_URL + '?action=getTasks');
+                const result = await response.json();
+
+                if (result.status === 'success') {
+                    // Filter hanya yang statusnya "Aktif"
+                    const tugasAktif = result.data.filter(t => t.Status === 'Aktif');
+                    
+                    listDiv.innerHTML = '';
+                    if (tugasAktif.length === 0) {
+                        listDiv.innerHTML = '<p style="text-align:center; color:gray;">Belum ada tugas aktif.</p>';
+                        return;
+                    }
+
+                    // Buat daftar tugas
+                    tugasAktif.forEach(tugas => {
+                        listDiv.innerHTML += `
+                            <div class="task-card">
+                                <div class="task-title">${tugas.Mata_Kuliah} - ${tugas.Jenis_Kegiatan}</div>
+                                <div class="task-meta">Tenggat: ${tugas.Deadline}</div>
+                                <button class="btn-success" onclick="tandaiSelesai('${tugas.ID_Tugas}')">
+                                    ✅ Tandai Selesai
+                                </button>
+                            </div>
+                        `;
+                    });
+                }
+            } catch (error) {
+                listDiv.innerHTML = '<p style="color:red; text-align:center;">Gagal memuat data.</p>';
+            }
+        }
+
+        // 4. Proses Mengubah Status Tugas Jadi "Selesai"
+        async function tandaiSelesai(idTugas) {
+            // Konfirmasi keamanan agar tidak salah pencet
+            if (!confirm('Yakin tugas ini sudah selesai dikumpulkan oleh satu angkatan?')) return;
+            
+            showLoading(true);
+            try {
+                const response = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'completeTask', id_tugas: idTugas })
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    alert('Tugas dipindahkan ke halaman Selesai!');
+                    loadTugasAktif(); // Refresh daftar
+                } else {
+                    alert('Gagal: ' + result.message);
+                }
+            } catch (error) {
+                alert('Terjadi kesalahan koneksi.');
+            }
+            showLoading(false);
+        }
+    </script>
+</body>
+</html>
