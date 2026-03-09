@@ -212,20 +212,22 @@
                 const dateObj = new Date(task.Deadline);
                 const formattedDate = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 
-                // --- BAGIAN BARU: Membuat Link Google Calendar ---
-                // Format Waktu ke standar Kalender (YYYYMMDDTHHMMSSZ)
+                // --- BAGIAN BARU: Membuat File .ICS (Universal Calendar) ---
+                // Format Waktu ke standar UTC Kalender (YYYYMMDDTHHMMSSZ)
                 const calStart = dateObj.toISOString().replace(/-|:|\.\d\d\d/g, "");
-                // Kita buat durasi kalendernya 1 jam (tenggat waktu)
-                const dateEnd = new Date(dateObj.getTime() + (60 * 60 * 1000)); 
+                const dateEnd = new Date(dateObj.getTime() + (60 * 60 * 1000)); // Durasi 1 jam
                 const calEnd = dateEnd.toISOString().replace(/-|:|\.\d\d\d/g, "");
                 
-                // Link sakti Google Calendar
-                const gCalLink = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(task.Mata_Kuliah + " - " + task.Jenis_Kegiatan)}&dates=${calStart}/${calEnd}&details=${encodeURIComponent(task.Deskripsi)}`;
+                // Menyusun teks format standar iCalendar
+                const icsContent = `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:${task.Mata_Kuliah} - ${task.Jenis_Kegiatan}\nDESCRIPTION:${task.Deskripsi}\nDTSTART:${calStart}\nDTEND:${calEnd}\nEND:VEVENT\nEND:VCALENDAR`;
                 
-                // Tombol Notif hanya muncul kalau tugas belum selesai
+                // Mengubah teks di atas menjadi format file yang bisa diklik
+                const icsLink = `data:text/calendar;charset=utf-8,${encodeURIComponent(icsContent)}`;
+                
+                // Tombol Notif menggunakan atribut download="tugas.ics"
                 const tombolNotif = !isSelesai ? `
-                    <a href="${gCalLink}" target="_blank" style="display:inline-block; margin-top:10px; background:#f59e0b; color:white; padding:5px 10px; border-radius:5px; text-decoration:none; font-size:12px; font-weight:bold;">
-                        <i class="fas fa-bell"></i> Set Pengingat
+                    <a href="${icsLink}" download="${task.Mata_Kuliah.replace(/\s/g, '_')}_Deadline.ics" style="display:inline-block; margin-top:10px; background:#f59e0b; color:white; padding:6px 12px; border-radius:6px; text-decoration:none; font-size:13px; font-weight:bold; box-shadow:0 2px 4px rgba(0,0,0,0.1);">
+                        <i class="fas fa-calendar-plus"></i> Masukkan ke Kalender HP
                     </a>
                 ` : '';
                 // ------------------------------------------------
@@ -240,7 +242,8 @@
                         <div class="deadline ${isSelesai}">
                             ${iconTugas} ${currentTab === 'Aktif' ? 'Deadline:' : 'Selesai:'} ${formattedDate}
                         </div>
-                        ${tombolNotif} </div>
+                        ${tombolNotif}
+                    </div>
                 `;
             });
         }
